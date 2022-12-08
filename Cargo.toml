@@ -1,0 +1,31 @@
+[package]
+name = "mp3lame-encoder"
+version = "0.1.0"
+edition = "2021"
+repository = "https://github.com/DoumanAsh/mp3lame-encoder"
+description = "High level bindings to mp3lame encoder"
+keywords = ["lame", "mp3", "mp3lame", "libmp3lame", "codec"]
+categories = ["encoding", "external-ffi-bindings", "multimedia::audio", "multimedia::encoding"]
+license = "LGPL-3.0"
+include = [
+    "src/**",
+    "Cargo.toml",
+    "README.md",
+    "LICENSE"
+]
+
+[features]
+std = []
+
+[dependencies.mp3lame-sys]
+version = "0.1.2"
+default-features = false
+
+[dependencies.libc]
+version = "0.2"
+default-features = false
+
+[dev-dependencies.symphonia]
+version = "0.5.1"
+default-features = false
+features = ["ogg", "vorbis"]
