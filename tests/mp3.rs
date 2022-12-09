@@ -47,7 +47,7 @@ fn should_decode_and_encode() {
     let mut mp3_encoder = Builder::new().expect("Create LAME builder");
     mp3_encoder.set_num_channels(spec_channels as u8).expect("set channels");
     mp3_encoder.set_sample_rate(spec.rate).expect("set sample rate");
-    mp3_encoder.set_brate(192).expect("set brate");
+    mp3_encoder.set_brate(mp3lame_encoder::Birtate::Kbps192).expect("set brate");
     mp3_encoder.set_quality(mp3lame_encoder::Quality::Best).expect("set quality");
     let mut mp3_encoder = mp3_encoder.build().expect("To initialize LAME encoder");
 

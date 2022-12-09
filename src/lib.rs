@@ -133,6 +133,44 @@ impl fmt::Display for EncodeError {
 }
 
 
+///Enumeration of valid values for `set_brate`
+#[derive(Copy, Clone)]
+#[repr(u16)]
+pub enum Birtate {
+    ///8_000
+    Kbps8 = 8,
+    ///16_000
+    Kbps16 = 16,
+    ///24_000
+    Kbps24 = 24,
+    ///32_000
+    Kbps32 = 32,
+    ///40_000
+    Kbps40 = 40,
+    ///48_000
+    Kbps48 = 48,
+    ///64_000
+    Kbps64 = 64,
+    ///80_000
+    Kbps80 = 80,
+    ///96_000
+    Kbps96 = 96,
+    ///112_000
+    Kbps112 = 112,
+    ///128_000
+    Kbps128 = 128,
+    ///160_000
+    Kbps160 = 160,
+    ///192_000
+    Kbps192 = 192,
+    ///224_000
+    Kbps224 = 224,
+    ///256_000
+    Kbps256 = 256,
+    ///320_000
+    Kbps320 = 320,
+}
+
 #[derive(Copy, Clone)]
 #[repr(u8)]
 ///Possible VBR types
@@ -258,9 +296,9 @@ impl Builder {
     ///Defaults to compression ratio of 11.
     ///
     ///Returns whether it is supported or not.
-    pub fn set_brate(&mut self, num: u32) -> Result<(), BuildError> {
+    pub fn set_brate(&mut self, brate: Birtate) -> Result<(), BuildError> {
         let res = unsafe {
-            ffi::lame_set_brate(self.ptr(), num as _)
+            ffi::lame_set_brate(self.ptr(), brate as _)
         };
 
         BuildError::from_c_int(res)
