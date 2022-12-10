@@ -45,3 +45,8 @@ unsafe {
 //At this point your mp3_out_buffer should have full MP3 data, ready to be written on file system or whatever
 
 ```
+
+## License
+
+LAME library is under LGPL License.
+Hence this crate is licensed under the same shitty license
