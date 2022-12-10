@@ -5,7 +5,7 @@ use symphonia::core::io::MediaSourceStream;
 use symphonia::core::probe::Hint;
 use symphonia::core::errors::Error as SymError;
 
-use mp3lame_encoder::{Builder, MonoPcm, FlushNoGap};
+use mp3lame_encoder::{Builder, MonoPcm, FlushNoGap, Id3Tag};
 
 #[test]
 fn should_decode_and_encode() {
@@ -49,6 +49,13 @@ fn should_decode_and_encode() {
     mp3_encoder.set_sample_rate(spec.rate).expect("set sample rate");
     mp3_encoder.set_brate(mp3lame_encoder::Birtate::Kbps192).expect("set brate");
     mp3_encoder.set_quality(mp3lame_encoder::Quality::Best).expect("set quality");
+    mp3_encoder.set_id3_tag(Id3Tag {
+        title: b"Bell",
+        artist: &[],
+        album: b"Test",
+        year: b"2022",
+        comment: b"Just some test shit",
+    });
     let mut mp3_encoder = mp3_encoder.build().expect("To initialize LAME encoder");
 
     let mut samples_num = audio_buf.frames();
@@ -124,7 +131,7 @@ fn should_decode_and_encode() {
         }
     }
 
-    let encoded_size = mp3_encoder.flush::<FlushNoGap>(mp3_out_buffer.spare_capacity_mut()).expect("to flush");
+    let encoded_size = mp3_encoder.flush::<FlushGap>(mp3_out_buffer.spare_capacity_mut()).expect("to flush");
     unsafe {
         mp3_out_buffer.set_len(mp3_out_buffer.len().wrapping_add(encoded_size));
     }

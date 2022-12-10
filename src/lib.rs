@@ -2,15 +2,14 @@
 
 #![warn(missing_docs)]
 
-#![no_std]
 #![cfg_attr(feature = "cargo-clippy", allow(clippy::style))]
 #![cfg_attr(rustfmt, rustfmt_skip)]
 
 pub use mp3lame_sys as ffi;
 
 use core::mem::{self, MaybeUninit};
-use core::ptr::NonNull;
-use core::fmt;
+use core::ptr::{self, NonNull};
+use core::{cmp, fmt};
 
 mod input;
 pub use input::*;
@@ -237,6 +236,32 @@ pub enum Quality {
     Worst = 9,
 }
 
+///ID3 tag as raw bytes.
+///
+///Use empty slice for `None`
+///
+///At the current moment, only up to 250 characters will be copied.
+pub struct Id3Tag<'a> {
+    ///Track's Title
+    pub title: &'a [u8],
+    ///Artist name
+    pub artist: &'a [u8],
+    ///Album name
+    pub album: &'a [u8],
+    ///Year
+    pub year: &'a [u8],
+    ///Comment
+    pub comment: &'a [u8],
+}
+
+impl Id3Tag<'_> {
+    #[inline(always)]
+    ///Returns true if any is set
+    pub const fn is_any_set(&self) -> bool {
+        !self.title.is_empty() || !self.artist.is_empty() || !self.album.is_empty() || !self.year.is_empty() || !self.comment.is_empty()
+    }
+}
+
 ///Builder of C LAME encoder.
 pub struct Builder {
     inner: NonNull<ffi::lame_global_flags>,
@@ -371,6 +396,62 @@ impl Builder {
         };
 
         BuildError::from_c_int(res)
+    }
+
+    #[inline]
+    ///Sets id3tag tag.
+    ///
+    ///If [FlushGap](FlushGap) is used, then `v1` will not be added.
+    ///But `v2` is always added at the beginning.
+    ///
+    ///Returns whether it is supported or not.
+    pub fn set_id3_tag(&mut self, value: Id3Tag<'_>) {
+        if !value.is_any_set() {
+            return;
+        }
+
+        const MAX_BUFFER: usize = 250;
+        let mut buffer = [0u8; MAX_BUFFER + 1];
+
+        unsafe {
+            ffi::id3tag_init(self.ptr());
+            ffi::id3tag_add_v2(self.ptr());
+
+            if !value.title.is_empty() {
+                let size = cmp::min(MAX_BUFFER, value.title.len());
+                ptr::copy_nonoverlapping(value.title.as_ptr(), buffer.as_mut_ptr(), size);
+                buffer[size] = 0;
+                ffi::id3tag_set_title(self.ptr(), buffer.as_ptr() as _);
+            }
+
+            if !value.album.is_empty() {
+                let size = cmp::min(MAX_BUFFER, value.album.len());
+                ptr::copy_nonoverlapping(value.album.as_ptr(), buffer.as_mut_ptr(), size);
+                buffer[size] = 0;
+                ffi::id3tag_set_album(self.ptr(), buffer.as_ptr() as _);
+            }
+
+            if !value.artist.is_empty() {
+                let size = cmp::min(MAX_BUFFER, value.artist.len());
+                ptr::copy_nonoverlapping(value.artist.as_ptr(), buffer.as_mut_ptr(), size);
+                buffer[size] = 0;
+                ffi::id3tag_set_artist(self.ptr(), buffer.as_ptr() as _);
+            }
+
+            if !value.year.is_empty() {
+                let size = cmp::min(MAX_BUFFER, value.year.len());
+                ptr::copy_nonoverlapping(value.year.as_ptr(), buffer.as_mut_ptr(), size);
+                buffer[size] = 0;
+                ffi::id3tag_set_year(self.ptr(), buffer.as_ptr() as _);
+            }
+
+            if !value.comment.is_empty() {
+                let size = cmp::min(MAX_BUFFER, value.comment.len());
+                ptr::copy_nonoverlapping(value.comment.as_ptr(), buffer.as_mut_ptr(), size);
+                buffer[size] = 0;
+                ffi::id3tag_set_comment(self.ptr(), buffer.as_ptr() as _);
+            }
+        }
     }
 
     #[inline]
