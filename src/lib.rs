@@ -1,4 +1,44 @@
 //!High level wrapper over [mp3lame-sys](https://crates.io/crates/mp3lame-sys)
+//!
+//!## Example
+//!
+//!```rust
+//!use mp3lame_encoder::{Builder, Id3Tag, DualPcm, FlushNoGap};
+//!
+//!let mut mp3_encoder = Builder::new().expect("Create LAME builder");
+//!mp3_encoder.set_num_channels(2).expect("set channels");
+//!mp3_encoder.set_sample_rate(44_100).expect("set sample rate");
+//!mp3_encoder.set_brate(mp3lame_encoder::Birtate::Kbps192).expect("set brate");
+//!mp3_encoder.set_quality(mp3lame_encoder::Quality::Best).expect("set quality");
+//!mp3_encoder.set_id3_tag(Id3Tag {
+//!    title: b"My title",
+//!    artist: &[],
+//!    album: b"My album",
+//!    year: b"Current year",
+//!    comment: b"Just my comment",
+//!});
+//!let mut mp3_encoder = mp3_encoder.build().expect("To initialize LAME encoder");
+//!
+//!//use actual PCM data
+//!let input = DualPcm {
+//!    left: &[0u16, 0],
+//!    right: &[0u16, 0],
+//!};
+//!
+//!let mut mp3_out_buffer = Vec::new();
+//!mp3_out_buffer.reserve(mp3lame_encoder::max_required_buffer_size(input.left.len()));
+//!let encoded_size = mp3_encoder.encode(input, mp3_out_buffer.spare_capacity_mut()).expect("To encode");
+//!unsafe {
+//!    mp3_out_buffer.set_len(mp3_out_buffer.len().wrapping_add(encoded_size));
+//!}
+//!
+//!let encoded_size = mp3_encoder.flush::<FlushNoGap>(mp3_out_buffer.spare_capacity_mut()).expect("to flush");
+//!unsafe {
+//!    mp3_out_buffer.set_len(mp3_out_buffer.len().wrapping_add(encoded_size));
+//!}
+//!//At this point your mp3_out_buffer should have full MP3 data, ready to be written on file system or whatever
+//!
+//!```
 
 #![warn(missing_docs)]
 
@@ -18,7 +58,7 @@ pub use input::*;
 ///Calculates maximum required size for specified number of samples.
 ///
 ///Note that actual requirement may vary depending on encoder parameters,
-///but it should fit any buffer this size.
+///but this size should be generally enough for encoding given number of samples
 pub const fn max_required_buffer_size(sample_number: usize) -> usize {
     //add 25% sample number + mp3 frame size 7200
     let mut sample_extra_size = sample_number / 4;
@@ -84,7 +124,10 @@ impl fmt::Display for BuildError {
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 ///Encoder errors
 pub enum EncodeError {
-    ///Indicates output buffer is insufficient
+    ///Indicates output buffer is insufficient.
+    ///
+    ///Consider using [max_required_buffer_size](max_required_buffer_size) to determine required
+    ///space to alloc.
     BufferTooSmall,
     ///Failed to allocate memory
     NoMem,
@@ -281,6 +324,14 @@ impl Builder {
         NonNull::new(ptr).map(|inner| Self {
             inner
         })
+    }
+
+    #[inline(always)]
+    ///Get access to underlying LAME structure, without dropping ownership.
+    ///
+    ///User must guarantee not to close or dealloc this pointer
+    pub unsafe fn as_ptr(&mut self) -> *mut ffi::lame_global_flags {
+        self.ptr()
     }
 
     #[inline(always)]
@@ -516,7 +567,7 @@ impl Encoder {
     ///
     ///### Arguments:
     ///
-    /// - `input` - Data input. Can be [DualPcm](DualPcm) or [InterleavedPcm](InterleavedPcm)
+    /// - `input` - Data input. Can be [MonoPcm](MonoPcm), [DualPcm](DualPcm) or [InterleavedPcm](InterleavedPcm)
     /// - `output` - Output buffer to write into.
     ///
     ///### Result:
@@ -554,5 +605,17 @@ impl Encoder {
         let result = T::flush(self, output_buf as _, output_len);
 
         EncodeError::from_c_int(result)
+    }
+}
+
+///Creates default encoder with 192kbps bitrate and best possible quality.
+pub fn encoder() -> Result<Encoder, BuildError> {
+    match Builder::new() {
+        Some(mut builder) => {
+            builder.set_brate(Birtate::Kbps192)?;
+            builder.set_quality(Quality::Best)?;
+            builder.build()
+        },
+        None => Err(BuildError::NoMem)
     }
 }
