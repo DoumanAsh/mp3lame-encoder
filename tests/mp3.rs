@@ -131,7 +131,7 @@ fn should_decode_and_encode() {
         }
     }
 
-    let encoded_size = mp3_encoder.flush::<FlushGap>(mp3_out_buffer.spare_capacity_mut()).expect("to flush");
+    let encoded_size = mp3_encoder.flush::<FlushNoGap>(mp3_out_buffer.spare_capacity_mut()).expect("to flush");
     unsafe {
         mp3_out_buffer.set_len(mp3_out_buffer.len().wrapping_add(encoded_size));
     }

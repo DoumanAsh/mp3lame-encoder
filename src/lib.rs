@@ -2,6 +2,7 @@
 
 #![warn(missing_docs)]
 
+#![no_std]
 #![cfg_attr(feature = "cargo-clippy", allow(clippy::style))]
 #![cfg_attr(rustfmt, rustfmt_skip)]
 
