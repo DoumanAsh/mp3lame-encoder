@@ -18,7 +18,7 @@ include = [
 std = []
 
 [dependencies.mp3lame-sys]
-version = "0.1.2"
+version = "0.1.4"
 default-features = false
 
 [dependencies.libc]
@@ -26,6 +26,6 @@ version = "0.2"
 default-features = false
 
 [dev-dependencies.symphonia]
-version = "0.5.1"
+version = "0.5.2"
 default-features = false
 features = ["ogg", "vorbis"]
