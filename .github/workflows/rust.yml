@@ -67,7 +67,7 @@ jobs:
     - name: Valgrind Check
       if: runner.os == 'Linux'
       env:
-        CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER: "valgrind --leak-check=full"
+        CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER: "valgrind --leak-check=full --error-exitcode=1 --gen-suppressions=all --suppressions=valgrind.supp"
       run: cargo test --release
 
   cross-compilation-test:

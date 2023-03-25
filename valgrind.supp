@@ -1,0 +1,34 @@
+{
+   <symphonia_bad_static>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:_ZN9hashbrown3raw21RawTable$LT$T$C$A$GT$14reserve_rehash17hfa2bc1ff307c9ebbE
+   fun:_ZN9hashbrown3raw21RawTable$LT$T$C$A$GT$6insert17h64b85f8a7f53ff93E
+   fun:_ZN14symphonia_core6codecs13CodecRegistry8register17hd595f5f2ea534e64E
+   fun:_ZN3std10sys_common4once5futex4Once4call17h03a069ee51be378cE
+   fun:_ZN9symphonia7default10get_codecs17h4afe06b588d0a5c9E
+   fun:_ZN4core3ops8function6FnOnce9call_once17h71db452601a63bdcE
+   fun:_ZN4test28__rust_begin_short_backtrace17hdbfb3590872a5665E
+   fun:_ZN4core3ops8function6FnOnce40call_once$u7b$$u7b$vtable.shim$u7d$$u7d$17hb616d188338deb3cE
+   fun:_ZN4test8run_test14run_test_inner28_$u7b$$u7b$closure$u7d$$u7d$17h82962f7dc5423737E
+   fun:_ZN3std10sys_common9backtrace28__rust_begin_short_backtrace17haff80e75de34938aE
+   fun:_ZN4core3ops8function6FnOnce40call_once$u7b$$u7b$vtable.shim$u7d$$u7d$17h60d743fae8f70528E
+}
+{
+   <symphonia_bad_static2>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:_ZN9hashbrown3raw21RawTable$LT$T$C$A$GT$14reserve_rehash17h8160c32563d1b706E
+   fun:_ZN9hashbrown3raw21RawTable$LT$T$C$A$GT$6insert17hfb9f08360e1c9a27E
+   fun:_ZN9hashbrown3map28HashMap$LT$K$C$V$C$S$C$A$GT$6insert17h217accc952c093a8E
+   fun:_ZN3std10sys_common4once5futex4Once4call17hcc4b8b47282121f4E
+   fun:_ZN18symphonia_metadata6vorbis5parse17ha1e7e13221ac1860E
+   fun:_ZN18symphonia_metadata6vorbis23read_comment_no_framing17hef673878b38d6f4fE
+   fun:_ZN111_$LT$symphonia_format_ogg..mappings..vorbis..VorbisMapper$u20$as$u20$symphonia_format_ogg..mappings..Mapper$GT$10map_packet17hca4f0518db0ea304E
+   fun:_ZN20symphonia_format_ogg7logical13LogicalStream9read_page17h57b0f98a460c434bE
+   fun:_ZN20symphonia_format_ogg7demuxer9OggReader25start_new_physical_stream17hb02451c2cdc67ab7E
+   fun:_ZN98_$LT$symphonia_format_ogg..demuxer..OggReader$u20$as$u20$symphonia_core..formats..FormatReader$GT$7try_new17h7abe6aaf6593df9eE
+   fun:_ZN4core3ops8function6FnOnce9call_once17h080f16b3503d21a3E
+}
