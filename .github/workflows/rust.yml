@@ -50,12 +50,25 @@ jobs:
             echo ::add-path::%USERPROFILE%\.cargo\bin
         }
 
+    - name: Install Valgrind
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y valgrind
+
     - name: Rust version
       run: |
         cargo --version
         rustc --version
+
     - name: Check
       run: cargo test
+
+    - name: Valgrind Check
+      if: runner.os == 'Linux'
+      env:
+        CARGO_TARGET_X86_64_UNKNOWN_LINUX_GNU_RUNNER: "valgrind --leak-check=full"
+      run: cargo test --release
 
   cross-compilation-test:
     needs: test
