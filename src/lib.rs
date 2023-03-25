@@ -608,6 +608,15 @@ impl Encoder {
     }
 }
 
+impl Drop for Encoder {
+    #[inline]
+    fn drop(&mut self) {
+        unsafe {
+            ffi::lame_close(self.ptr())
+        };
+    }
+}
+
 ///Creates default encoder with 192kbps bitrate and best possible quality.
 pub fn encoder() -> Result<Encoder, BuildError> {
     match Builder::new() {
