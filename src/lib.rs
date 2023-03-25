@@ -535,7 +535,7 @@ impl Drop for Builder {
     }
 }
 
-///Builder of C LAME encoder.
+///LAME Encoder.
 pub struct Encoder {
     inner: NonNull<ffi::lame_global_flags>,
 }
