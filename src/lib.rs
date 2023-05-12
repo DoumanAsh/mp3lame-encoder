@@ -8,7 +8,7 @@
 //!let mut mp3_encoder = Builder::new().expect("Create LAME builder");
 //!mp3_encoder.set_num_channels(2).expect("set channels");
 //!mp3_encoder.set_sample_rate(44_100).expect("set sample rate");
-//!mp3_encoder.set_brate(mp3lame_encoder::Birtate::Kbps192).expect("set brate");
+//!mp3_encoder.set_brate(mp3lame_encoder::Bitrate::Kbps192).expect("set brate");
 //!mp3_encoder.set_quality(mp3lame_encoder::Quality::Best).expect("set quality");
 //!mp3_encoder.set_id3_tag(Id3Tag {
 //!    title: b"My title",
@@ -179,7 +179,7 @@ impl fmt::Display for EncodeError {
 ///Enumeration of valid values for `set_brate`
 #[derive(Copy, Clone)]
 #[repr(u16)]
-pub enum Birtate {
+pub enum Bitrate {
     ///8_000
     Kbps8 = 8,
     ///16_000
@@ -213,6 +213,9 @@ pub enum Birtate {
     ///320_000
     Kbps320 = 320,
 }
+
+///Alias to `Bitrate` with incorrect spelling
+pub use Bitrate as Birtate;
 
 #[derive(Copy, Clone)]
 #[repr(u8)]
@@ -373,7 +376,7 @@ impl Builder {
     ///Defaults to compression ratio of 11.
     ///
     ///Returns whether it is supported or not.
-    pub fn set_brate(&mut self, brate: Birtate) -> Result<(), BuildError> {
+    pub fn set_brate(&mut self, brate: Bitrate) -> Result<(), BuildError> {
         let res = unsafe {
             ffi::lame_set_brate(self.ptr(), brate as _)
         };
@@ -621,7 +624,7 @@ impl Drop for Encoder {
 pub fn encoder() -> Result<Encoder, BuildError> {
     match Builder::new() {
         Some(mut builder) => {
-            builder.set_brate(Birtate::Kbps192)?;
+            builder.set_brate(Bitrate::Kbps192)?;
             builder.set_quality(Quality::Best)?;
             builder.build()
         },

@@ -14,7 +14,7 @@ use mp3lame_encoder::{Builder, Id3Tag, DualPcm, FlushNoGap};
 let mut mp3_encoder = Builder::new().expect("Create LAME builder");
 mp3_encoder.set_num_channels(2).expect("set channels");
 mp3_encoder.set_sample_rate(44_100).expect("set sample rate");
-mp3_encoder.set_brate(mp3lame_encoder::Birtate::Kbps192).expect("set brate");
+mp3_encoder.set_brate(mp3lame_encoder::Bitrate::Kbps192).expect("set brate");
 mp3_encoder.set_quality(mp3lame_encoder::Quality::Best).expect("set quality");
 mp3_encoder.set_id3_tag(Id3Tag {
     title: b"My title",
