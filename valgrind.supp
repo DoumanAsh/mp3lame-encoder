@@ -66,3 +66,37 @@
    fun:_ZN98_$LT$symphonia_format_ogg..demuxer..OggReader$u20$as$u20$symphonia_core..formats..FormatReader$GT$7try_new17h617c4ab7e7da36f5E
    fun:_ZN4core3ops8function6FnOnce9call_once17h62800e492a4a5e73E
 }
+{
+   <symphonia_bad_static5>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:_ZN9hashbrown3raw21RawTable$LT$T$C$A$GT$14reserve_rehash17h9ed569eea8ec550cE
+   fun:_ZN9hashbrown3raw21RawTable$LT$T$C$A$GT$6insert17hcf3b55f03e09eec0E
+   fun:_ZN14symphonia_core6codecs13CodecRegistry8register17hc72a23d2a1555cd4E
+   fun:_ZN3std10sys_common4once5futex4Once4call17h3e8e3b515f160f20E
+   fun:_ZN9symphonia7default10get_codecs17h12d5349dbaea72b7E
+   fun:_ZN4core3ops8function6FnOnce9call_once17h3c3c054484e54649E
+   fun:_ZN4test28__rust_begin_short_backtrace17h95acc83b06096772E
+   fun:_ZN4core3ops8function6FnOnce40call_once$u7b$$u7b$vtable.shim$u7d$$u7d$17h5a9aa91b38c63678E
+   fun:_ZN4test8run_test14run_test_inner28_$u7b$$u7b$closure$u7d$$u7d$17hf557b542136e877cE
+   fun:_ZN3std10sys_common9backtrace28__rust_begin_short_backtrace17hbdb280633d467d73E
+   fun:_ZN4core3ops8function6FnOnce40call_once$u7b$$u7b$vtable.shim$u7d$$u7d$17hae0e245f49617ce8E
+}
+{
+   <symphonia_bad_static6>
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:_ZN9hashbrown3raw21RawTable$LT$T$C$A$GT$14reserve_rehash17hf50f4b1d61815e9aE
+   fun:_ZN9hashbrown3raw21RawTable$LT$T$C$A$GT$6insert17hf9d2dac078a9ddecE
+   fun:_ZN9hashbrown3map28HashMap$LT$K$C$V$C$S$C$A$GT$6insert17h7429e860f287a9f6E
+   fun:_ZN3std10sys_common4once5futex4Once4call17hdb14f29d75afa5bcE
+   fun:_ZN18symphonia_metadata6vorbis5parse17h302cb183421b4955E
+   fun:_ZN18symphonia_metadata6vorbis23read_comment_no_framing17h76f972a517e5a0e5E
+   fun:_ZN111_$LT$symphonia_format_ogg..mappings..vorbis..VorbisMapper$u20$as$u20$symphonia_format_ogg..mappings..Mapper$GT$10map_packet17h5f8d434a67e117c9E
+   fun:_ZN20symphonia_format_ogg7logical13LogicalStream9read_page17h960aae877aa8f813E
+   fun:_ZN20symphonia_format_ogg7demuxer9OggReader25start_new_physical_stream17hf90c6b3a94d3f974E
+   fun:_ZN98_$LT$symphonia_format_ogg..demuxer..OggReader$u20$as$u20$symphonia_core..formats..FormatReader$GT$7try_new17hbd77454a3ca939d0E
+   fun:_ZN4core3ops8function6FnOnce9call_once17h15348ab45a96418bE
+}

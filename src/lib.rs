@@ -244,6 +244,8 @@ impl Default for VbrMode {
 #[repr(u8)]
 ///Possible modes for encoder
 pub enum Mode {
+    ///Mono.
+    Mono = ffi::MPEG_mode::MONO as u8,
     ///Stereo.
     Stereo = ffi::MPEG_mode::STEREO as u8,
     ///Joint stereo.
