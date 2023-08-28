@@ -100,3 +100,37 @@
    fun:_ZN98_$LT$symphonia_format_ogg..demuxer..OggReader$u20$as$u20$symphonia_core..formats..FormatReader$GT$7try_new17hbd77454a3ca939d0E
    fun:_ZN4core3ops8function6FnOnce9call_once17h15348ab45a96418bE
 }
+{
+   symphonia_bad_static7
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:_ZN9hashbrown3raw21RawTable$LT$T$C$A$GT$14reserve_rehash17hde75f3e62070b160E.llvm.12791714238023182007
+   fun:_ZN9hashbrown3map28HashMap$LT$K$C$V$C$S$C$A$GT$6insert17h4d0769cb0167a827E
+   fun:_ZN14symphonia_core6codecs13CodecRegistry8register17h605532b179367467E
+   fun:_ZN3std10sys_common4once5futex4Once4call17h1fda29a11fae3e45E
+   fun:_ZN9symphonia7default10get_codecs17hbb23cf410b526638E
+   fun:_ZN4core3ops8function6FnOnce9call_once17hcab1fa917bfa98e8E
+   fun:_ZN4test28__rust_begin_short_backtrace17h6f768fb9c89e0ae1E
+   fun:_ZN4test8run_test28_$u7b$$u7b$closure$u7d$$u7d$17hb7ea0d3d94d9d223E
+   fun:_ZN3std10sys_common9backtrace28__rust_begin_short_backtrace17h31b2f9bcfe4d7d74E
+   fun:_ZN4core3ops8function6FnOnce40call_once$u7b$$u7b$vtable.shim$u7d$$u7d$17h1e338cfcfd8dc720E
+   fun:_ZN3std3sys4unix6thread6Thread3new12thread_start17h04c8e9c7d83d3bd5E
+}
+{
+   symphonia_bad_static8
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:_ZN9hashbrown3raw21RawTable$LT$T$C$A$GT$14reserve_rehash17h3700936e06f0159aE.llvm.11390103889876922989
+   fun:_ZN9hashbrown3map28HashMap$LT$K$C$V$C$S$C$A$GT$6insert17h96848fd1935fb9cfE
+   fun:_ZN3std10sys_common4once5futex4Once4call17h5411c01fc2061dd7E
+   fun:_ZN18symphonia_metadata6vorbis5parse17hbdc447bc545c3d5bE
+   fun:_ZN18symphonia_metadata6vorbis23read_comment_no_framing17h15a616932ef85d23E
+   fun:_ZN111_$LT$symphonia_format_ogg..mappings..vorbis..VorbisMapper$u20$as$u20$symphonia_format_ogg..mappings..Mapper$GT$10map_packet17h47c0d240bc1ac877E
+   fun:_ZN20symphonia_format_ogg7logical13LogicalStream9read_page17h1e1022515e39b721E
+   fun:_ZN20symphonia_format_ogg7demuxer9OggReader25start_new_physical_stream17haa675b69aa76bd88E
+   fun:_ZN98_$LT$symphonia_format_ogg..demuxer..OggReader$u20$as$u20$symphonia_core..formats..FormatReader$GT$7try_new17h4042e2c6798169a4E
+   fun:_ZN4core3ops8function6FnOnce9call_once17h4990be585f4f594eE
+   fun:_ZN14symphonia_core5probe5Probe6format17h3ae1466b3056fa2dE
+}
