@@ -53,7 +53,7 @@ impl EncoderInput for MonoPcm<'_, libc::c_int> {
     }
 }
 
-#[cfg(all(unix, not(target_pointer_width = "32")))]
+#[cfg(all(unix, not(target_arch = "x86")))]
 //On most unix it should be i64.
 //But unclear about other platforms, so it is only implemented there as otherwise it is i32.
 impl EncoderInput for MonoPcm<'_, libc::c_long> {
