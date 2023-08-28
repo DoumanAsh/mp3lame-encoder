@@ -134,3 +134,20 @@
    fun:_ZN4core3ops8function6FnOnce9call_once17h4990be585f4f594eE
    fun:_ZN14symphonia_core5probe5Probe6format17h3ae1466b3056fa2dE
 }
+{
+   symphonia_bad_static9
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:_ZN9hashbrown3raw21RawTable$LT$T$C$A$GT$14reserve_rehash17hde75f3e62070b160E.llvm.12791714238023182007
+   fun:_ZN9hashbrown3map28HashMap$LT$K$C$V$C$S$C$A$GT$6insert17h4d0769cb0167a827E
+   fun:_ZN14symphonia_core6codecs13CodecRegistry8register17h605532b179367467E
+   fun:_ZN3std10sys_common4once5futex4Once4call17h1fda29a11fae3e45E
+   fun:_ZN9symphonia7default10get_codecs17hbb23cf410b526638E
+   fun:_ZN4core3ops8function6FnOnce9call_once17h9ad132d6ed134f77E
+   fun:_ZN4test28__rust_begin_short_backtrace17h6f768fb9c89e0ae1E
+   fun:_ZN4test8run_test28_$u7b$$u7b$closure$u7d$$u7d$17hb7ea0d3d94d9d223E
+   fun:_ZN3std10sys_common9backtrace28__rust_begin_short_backtrace17h31b2f9bcfe4d7d74E
+   fun:_ZN4core3ops8function6FnOnce40call_once$u7b$$u7b$vtable.shim$u7d$$u7d$17h1e338cfcfd8dc720E
+   fun:_ZN3std3sys4unix6thread6Thread3new12thread_start17h04c8e9c7d83d3bd5E
+}
