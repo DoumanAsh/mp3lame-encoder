@@ -622,6 +622,11 @@ impl Drop for Encoder {
     }
 }
 
+/// According to LAME 3.99.5 HACKING, it is thread-safe.
+unsafe impl Send for Encoder {}
+/// According to LAME 3.99.5 HACKING, it is thread-safe.
+unsafe impl Sync for Encoder {}
+
 ///Creates default encoder with 192kbps bitrate and best possible quality.
 pub fn encoder() -> Result<Encoder, BuildError> {
     match Builder::new() {
