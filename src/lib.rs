@@ -103,7 +103,7 @@ impl BuildError {
     }
 }
 
-#[cfg(features = "std")]
+#[cfg(feature = "std")]
 impl std::error::Error for BuildError {
 }
 
@@ -158,7 +158,7 @@ impl EncodeError {
     }
 }
 
-#[cfg(features = "std")]
+#[cfg(feature = "std")]
 impl std::error::Error for EncodeError {
 }
 
