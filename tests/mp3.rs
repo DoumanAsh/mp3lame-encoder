@@ -5,7 +5,9 @@ use symphonia::core::io::MediaSourceStream;
 use symphonia::core::probe::Hint;
 use symphonia::core::errors::Error as SymError;
 
-use mp3lame_encoder::{Builder, MonoPcm, FlushNoGap, Id3Tag};
+use mp3lame_encoder::{Builder, MonoPcm, FlushNoGap, Id3Tag, MAX_ALBUM_ART_SIZE};
+
+static ALBUM_ART: &[u8] = include_bytes!("album_art.jpg");
 
 #[test]
 fn should_decode_and_encode() {
@@ -53,10 +55,13 @@ fn should_decode_and_encode() {
         title: b"Bell",
         artist: &[],
         album: b"Test",
+        album_art: ALBUM_ART,
         year: b"2022",
         comment: b"Just some test shit",
-    });
+    }).expect("success");
     let mut mp3_encoder = mp3_encoder.build().expect("To initialize LAME encoder");
+
+    mp3_out_buffer.reserve(MAX_ALBUM_ART_SIZE);
 
     let mut samples_num = audio_buf.frames();
     let encoded_size = match audio_buf {

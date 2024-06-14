@@ -14,6 +14,7 @@
 //!    title: b"My title",
 //!    artist: &[],
 //!    album: b"My album",
+//!    album_art: &[],
 //!    year: b"Current year",
 //!    comment: b"Just my comment",
 //!});
@@ -55,6 +56,9 @@ use core::{cmp, fmt};
 mod input;
 pub use input::*;
 
+///Maximum size of album art
+pub const MAX_ALBUM_ART_SIZE: usize = 128 * 1024;
+
 ///Calculates maximum required size for specified number of samples.
 ///
 ///Note that actual requirement may vary depending on encoder parameters,
@@ -66,6 +70,13 @@ pub const fn max_required_buffer_size(sample_number: usize) -> usize {
         sample_extra_size = sample_extra_size.wrapping_add(1);
     }
     sample_number.wrapping_add(sample_extra_size).wrapping_add(7200)
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+///ID3 setter errors
+pub enum Id3TagError {
+    ///Specified buffer exceed limit of 128kb
+    AlbumArtOverflow,
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -297,6 +308,15 @@ pub struct Id3Tag<'a> {
     pub artist: &'a [u8],
     ///Album name
     pub album: &'a [u8],
+    ///Album art
+    ///
+    ///Must be image data.
+    ///
+    ///Allowed formats: PNG, JPG, GIF
+    ///
+    ///Maximum size is defined by constant MAX_ALBUM_ART_SIZE
+    ///When setting this metadata, make sure allocate at least MAX_ALBUM_ART_SIZE
+    pub album_art: &'a [u8],
     ///Year
     pub year: &'a [u8],
     ///Comment
@@ -307,7 +327,7 @@ impl Id3Tag<'_> {
     #[inline(always)]
     ///Returns true if any is set
     pub const fn is_any_set(&self) -> bool {
-        !self.title.is_empty() || !self.artist.is_empty() || !self.album.is_empty() || !self.year.is_empty() || !self.comment.is_empty()
+        !self.title.is_empty() || !self.artist.is_empty() || !self.album.is_empty() || !self.album_art.is_empty() || !self.year.is_empty() || !self.comment.is_empty()
     }
 }
 
@@ -462,9 +482,9 @@ impl Builder {
     ///But `v2` is always added at the beginning.
     ///
     ///Returns whether it is supported or not.
-    pub fn set_id3_tag(&mut self, value: Id3Tag<'_>) {
+    pub fn set_id3_tag(&mut self, value: Id3Tag<'_>) -> Result<(), Id3TagError> {
         if !value.is_any_set() {
-            return;
+            return Ok(());
         }
 
         const MAX_BUFFER: usize = 250;
@@ -473,6 +493,15 @@ impl Builder {
         unsafe {
             ffi::id3tag_init(self.ptr());
             ffi::id3tag_add_v2(self.ptr());
+
+            if !value.album_art.is_empty() {
+                let size = value.album_art.len();
+                if size > MAX_ALBUM_ART_SIZE {
+                    return Err(Id3TagError::AlbumArtOverflow);
+                }
+                let ptr = value.album_art.as_ptr();
+                ffi::id3tag_set_albumart(self.ptr(), ptr as _, size);
+            }
 
             if !value.title.is_empty() {
                 let size = cmp::min(MAX_BUFFER, value.title.len());
@@ -509,6 +538,8 @@ impl Builder {
                 ffi::id3tag_set_comment(self.ptr(), buffer.as_ptr() as _);
             }
         }
+
+        Ok(())
     }
 
     #[inline]
