@@ -511,6 +511,20 @@ impl Builder {
         }
     }
 
+        
+    #[inline]
+    ///Sets id3tag album art
+    /// 
+    ///Returns whether it is supported or not.
+    pub fn set_album_art(&mut self, image: &[i8]){
+        if image.len() == 0{
+            return;
+        }
+        unsafe{
+            ffi::id3tag_set_albumart(self.ptr(), image.as_ptr(), image.len());        
+        }
+    }
+
     #[inline]
     ///Attempts to initialize encoder with specified parameters.
     ///
