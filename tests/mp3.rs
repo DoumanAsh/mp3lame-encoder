@@ -64,7 +64,7 @@ fn should_decode_and_encode() {
     mp3_out_buffer.reserve(MAX_ALBUM_ART_SIZE);
 
     let mut samples_num = audio_buf.frames();
-    let encoded_size = match audio_buf {
+    match audio_buf {
         AudioBufferRef::F32(audio_buf) => {
             let planes = audio_buf.planes();
             let planes = planes.planes();
@@ -72,7 +72,7 @@ fn should_decode_and_encode() {
             let input = MonoPcm(planes[0]);
             assert_eq!(samples_num, input.0.len());
             mp3_out_buffer.reserve(mp3lame_encoder::max_required_buffer_size(samples_num));
-            mp3_encoder.encode(input, mp3_out_buffer.spare_capacity_mut()).expect("To encode")
+            mp3_encoder.encode_to_vec(input, &mut mp3_out_buffer).expect("To encode");
         }
         AudioBufferRef::F64(audio_buf) => {
             let planes = audio_buf.planes();
@@ -81,13 +81,9 @@ fn should_decode_and_encode() {
             let input = MonoPcm(planes[0]);
             assert_eq!(samples_num, input.0.len());
             mp3_out_buffer.reserve(mp3lame_encoder::max_required_buffer_size(samples_num));
-            mp3_encoder.encode(input, mp3_out_buffer.spare_capacity_mut()).expect("To encode")
+            mp3_encoder.encode_to_vec(input, &mut mp3_out_buffer).expect("To encode");
         }
         _ => panic!("Unexpected"),
-    };
-
-    unsafe {
-        mp3_out_buffer.set_len(mp3_out_buffer.len().wrapping_add(encoded_size));
     }
 
     loop {
@@ -108,7 +104,7 @@ fn should_decode_and_encode() {
 
         samples_num = audio_buf.frames();
 
-        let encoded_size = match audio_buf {
+        match audio_buf {
             AudioBufferRef::F32(audio_buf) => {
                 let planes = audio_buf.planes();
                 let planes = planes.planes();
@@ -116,7 +112,7 @@ fn should_decode_and_encode() {
                 let input = MonoPcm(planes[0]);
                 assert_eq!(samples_num, input.0.len());
                 mp3_out_buffer.reserve(mp3lame_encoder::max_required_buffer_size(samples_num));
-                mp3_encoder.encode(input, mp3_out_buffer.spare_capacity_mut()).expect("To encode")
+                mp3_encoder.encode_to_vec(input, &mut mp3_out_buffer).expect("To encode");
             }
             AudioBufferRef::F64(audio_buf) => {
                 let planes = audio_buf.planes();
@@ -125,20 +121,12 @@ fn should_decode_and_encode() {
                 let input = MonoPcm(planes[0]);
                 assert_eq!(samples_num, input.0.len());
                 mp3_out_buffer.reserve(mp3lame_encoder::max_required_buffer_size(samples_num));
-                mp3_encoder.encode(input, mp3_out_buffer.spare_capacity_mut()).expect("To encode")
+                mp3_encoder.encode_to_vec(input, &mut mp3_out_buffer).expect("To encode");
             }
             _ => panic!("Unexpected"),
-        };
-
-
-        unsafe {
-            mp3_out_buffer.set_len(mp3_out_buffer.len().wrapping_add(encoded_size));
         }
     }
 
-    let encoded_size = mp3_encoder.flush::<FlushNoGap>(mp3_out_buffer.spare_capacity_mut()).expect("to flush");
-    unsafe {
-        mp3_out_buffer.set_len(mp3_out_buffer.len().wrapping_add(encoded_size));
-    }
+    let _ = mp3_encoder.flush_to_vec::<FlushNoGap>(&mut mp3_out_buffer).expect("to flush");
     fs::write(NEW_FILE, &mp3_out_buffer).expect("write file")
 }

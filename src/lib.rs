@@ -50,8 +50,11 @@
 #[cfg(feature = "std")]
 extern crate std;
 
+extern crate alloc;
+
 pub use mp3lame_sys as ffi;
 
+use alloc::vec::Vec;
 use core::mem::{self, MaybeUninit};
 use core::ptr::{self, NonNull};
 use core::{cmp, fmt};
@@ -621,6 +624,25 @@ impl Encoder {
         EncodeError::from_c_int(result)
     }
 
+    #[inline(always)]
+    ///Attempts to encode PCM data, writing whatever available onto `output` buffer
+    ///
+    ///`output` size is adjusted on success only
+    ///
+    ///Refer for details to `encode()`
+    pub fn encode_to_vec(&mut self, input: impl EncoderInput, output: &mut Vec<u8>) -> Result<usize, EncodeError> {
+        let original_len = output.len();
+        match self.encode(input, output.spare_capacity_mut()) {
+            Ok(written) => {
+                unsafe {
+                    output.set_len(original_len.saturating_add(written));
+                }
+                Ok(written)
+            },
+            Err(error) => Err(error),
+        }
+    }
+
     #[inline]
     ///Attempts flush all data, writing whatever available onto `output` buffer
     ///Padding with 0 to complete MP3
@@ -644,6 +666,25 @@ impl Encoder {
         let result = T::flush(self, output_buf as _, output_len);
 
         EncodeError::from_c_int(result)
+    }
+
+    #[inline(always)]
+    ///Attempts flush all data, writing whatever available onto `output` buffer.
+    ///
+    ///`output` size is adjusted on success only
+    ///
+    ///Refer for details to `flush()`
+    pub fn flush_to_vec<T: EncoderFlush>(&mut self, output: &mut Vec<u8>) -> Result<usize, EncodeError> {
+        let original_len = output.len();
+        match self.flush::<T>(output.spare_capacity_mut()) {
+            Ok(written) => {
+                unsafe {
+                    output.set_len(original_len.saturating_add(written));
+                }
+                Ok(written)
+            },
+            Err(error) => Err(error),
+        }
     }
 }
 
