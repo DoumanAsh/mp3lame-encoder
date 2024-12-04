@@ -41,11 +41,14 @@
 //!
 //!```
 
-#![warn(missing_docs)]
-
 #![no_std]
-#![cfg_attr(feature = "cargo-clippy", allow(clippy::style))]
+#![warn(missing_docs)]
+#![allow(clippy::style)]
+#![allow(clippy::missing_safety_doc)]
 #![cfg_attr(rustfmt, rustfmt_skip)]
+
+#[cfg(feature = "std")]
+extern crate std;
 
 pub use mp3lame_sys as ffi;
 
@@ -372,7 +375,7 @@ impl Builder {
     ///Returns whether it is supported or not.
     pub fn set_sample_rate(&mut self, rate: u32) -> Result<(), BuildError> {
         let res = unsafe {
-            ffi::lame_set_in_samplerate(self.ptr(), rate.try_into().unwrap_or(libc::c_int::max_value()))
+            ffi::lame_set_in_samplerate(self.ptr(), rate.try_into().unwrap_or(libc::c_int::MAX))
         };
 
         BuildError::from_c_int(res)
