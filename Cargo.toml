@@ -1,6 +1,6 @@
 [package]
 name = "mp3lame-encoder"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2021"
 repository = "https://github.com/DoumanAsh/mp3lame-encoder"
 description = "High level bindings to mp3lame encoder"
