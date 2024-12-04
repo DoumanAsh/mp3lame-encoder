@@ -30,3 +30,12 @@
    fun:*lang_start_internal*
    fun:main
 }
+{
+   symphonia_bad_static3
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:*symphonia_format_ogg*demuxer*OggReader*symphonia_core*formats*FormatReader*try_new*
+   fun:_ZN4core3ops8function6FnOnce9call_once17h6099d6ea9fe1a731E
+}
