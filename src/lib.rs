@@ -373,7 +373,7 @@ impl Builder {
     #[inline]
     ///Sets sample rate.
     ///
-    ///Defaults to 44_100
+    ///Defaults to 44_100.
     ///
     ///Returns whether it is supported or not.
     pub fn set_sample_rate(&mut self, rate: u32) -> Result<(), BuildError> {
@@ -385,9 +385,20 @@ impl Builder {
     }
 
     #[inline]
-    ///Sets sample rate.
+    ///Sets sample rate using the builder pattern.
+    /// 
+    ///Defaults to 44_100.
+    /// 
+    ///Returns an error if it is not supported.
+    pub fn with_sample_rate(mut self, rate: u32) -> Result<Self, BuildError> {
+        self.set_sample_rate(rate)?;
+        Ok(self)
+    }
+
+    #[inline]
+    ///Sets number of channels.
     ///
-    ///Defaults to 2
+    ///Defaults to 2.
     ///
     ///Returns whether it is supported or not.
     pub fn set_num_channels(&mut self, num: u8) -> Result<(), BuildError> {
@@ -396,6 +407,17 @@ impl Builder {
         };
 
         BuildError::from_c_int(res)
+    }
+
+    #[inline]
+    ///Sets sample rate using the builder pattern.
+    ///
+    ///Defaults to 2.
+    ///
+    ///Returns an error if it is not supported.
+    pub fn with_num_channels(mut self, num: u8) -> Result<Self, BuildError> {
+        self.set_num_channels(num)?;
+        Ok(self)
     }
 
     #[inline]
@@ -413,6 +435,17 @@ impl Builder {
     }
 
     #[inline]
+    ///Sets bitrate (as kbps) using the builder pattern.
+    ///
+    ///Defaults to compression ratio of 11.
+    ///
+    ///Returns an error if it is not supported.
+    pub fn with_brate(mut self, brate: Bitrate) -> Result<Self, BuildError> {
+        self.set_brate(brate)?;
+        Ok(self)
+    }
+
+    #[inline]
     ///Sets MPEG mode.
     ///
     ///Default is picked by LAME depending on compression ration and input channels.
@@ -424,6 +457,17 @@ impl Builder {
         };
 
         BuildError::from_c_int(res)
+    }
+
+    #[inline]
+    ///Sets MPEG mode using the builder pattern.
+    ///
+    ///Default is picked by LAME depending on compression ration and input channels.
+    ///
+    ///Returns an error if it is not supported.
+    pub fn with_mode(mut self, mode: Mode) -> Result<Self, BuildError> {
+        self.set_mode(mode)?;
+        Ok(self)
     }
 
     #[inline]
@@ -441,6 +485,17 @@ impl Builder {
     }
 
     #[inline]
+    ///Sets quality using the builder pattern.
+    ///
+    ///Default is good one(5)
+    ///
+    ///Returns an error if it is not supported.
+    pub fn with_quality(mut self, quality: Quality) -> Result<Self, BuildError> {
+        self.set_quality(quality)?;
+        Ok(self)
+    }
+
+    #[inline]
     ///Sets VBR quality.
     ///
     ///Returns whether it is supported or not.
@@ -452,11 +507,19 @@ impl Builder {
         BuildError::from_c_int(res)
     }
 
+    #[inline]
+    ///Sets VBR quality using the builder pattern.
+    /// 
+    ///Returns an error if it is not supported.
+    pub fn with_vbr_quality(mut self, quality: Quality) -> Result<Self, BuildError> {
+        self.set_vbr_quality(quality)?;
+        Ok(self)
+    }
 
     #[inline]
     ///Sets whether to write VBR tag.
     ///
-    ///Default is true
+    ///Default is true.
     ///
     ///Returns whether it is supported or not.
     pub fn set_to_write_vbr_tag(&mut self, value: bool) -> Result<(), BuildError> {
@@ -468,7 +531,18 @@ impl Builder {
     }
 
     #[inline]
-    ///Sets VBR mode
+    ///Sets whether to write VBR tag using the builder pattern.
+    ///
+    ///Default is true.
+    ///
+    ///Returns an error if it is not supported.
+    pub fn with_to_write_vbr_tag(mut self, value: bool) -> Result<Self, BuildError> {
+        self.set_to_write_vbr_tag(value)?;
+        Ok(self)
+    }
+
+    #[inline]
+    ///Sets VBR mode.
     ///
     ///Default is off (i.e. CBR)
     ///
@@ -479,6 +553,17 @@ impl Builder {
         };
 
         BuildError::from_c_int(res)
+    }
+
+    #[inline]
+    ///Sets VBR mode using the bulder pattern.
+    /// 
+    ///Default is off (i.e. CBR)
+    /// 
+    ///Returns an error if it is not supported.
+    pub fn with_vbr_mode(mut self, value: VbrMode) -> Result<Self, BuildError> {
+        self.set_vbr_mode(value)?;
+        Ok(self)
     }
 
     #[inline]
@@ -546,6 +631,17 @@ impl Builder {
         }
 
         Ok(())
+    }
+
+    #[inline]
+    ///Sets id3tag tag using the builder pattern.
+    ///
+    ///If [FlushGap](FlushGap) is used, then `v1` will not be added.
+    /// 
+    ///Returns an error if it is not supported.
+    pub fn with_id3_tag(mut self, value: Id3Tag<'_>) -> Result<Self, Id3TagError> {
+        self.set_id3_tag(value)?;
+        Ok(self)
     }
 
     #[inline]
