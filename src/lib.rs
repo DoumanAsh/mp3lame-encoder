@@ -19,6 +19,22 @@
 //!    comment: b"Just my comment",
 //!});
 //!let mut mp3_encoder = mp3_encoder.build().expect("To initialize LAME encoder");
+//! 
+//!//You can also use the builder pattern:
+//! let mut mp3_encoder = Builder::new().expect("Create LAME builder")
+//!     .with_num_channels(2).expect("set channels")
+//!     .with_sample_rate(44_100).expect("set sample rate")
+//!     .with_brate(mp3lame_encoder::Bitrate::Kbps192).expect("set brate")
+//!     .with_quality(mp3lame_encoder::Quality::Best).expect("set quality")
+//!     .with_id3_tag(Id3Tag {
+//!         title: b"My title",
+//!         artist: &[],
+//!         album: b"My album",
+//!         album_art: &[],
+//!         year: b"Current year",
+//!         comment: b"Just my comment",
+//!      }).expect("set tags")
+//!     .build().expect("To initialize LAME encoder");
 //!
 //!//use actual PCM data
 //!let input = DualPcm {
