@@ -23,19 +23,33 @@
    ...
 }
 {
-   rust_rt_maybe_leak
-   Memcheck:Leak
-   match-leak-kinds: possible
-   fun:malloc
-   fun:*lang_start_internal*
-   fun:main
-}
-{
    symphonia_bad_static3
    Memcheck:Leak
    match-leak-kinds: possible
    fun:malloc
    ...
    fun:*symphonia_format_ogg*demuxer*OggReader*symphonia_core*formats*FormatReader*try_new*
-   fun:_ZN4core3ops8function6FnOnce9call_once17h6099d6ea9fe1a731E
+   fun:*FnOnce*call_once*
+}
+{
+   symphonia_bad_static3.5
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:*symphonia_format_ogg*demuxer*OggReader*
+   fun:*FnOnce*call_once*
+}
+{
+   rust_compiler_leak_error_on_panic_in_rt
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:*thread*current*init_current*
+   ...
+   fun:*run_tests_console*
+   ...
+   fun:*rt*lang_start*
+   fun:*rt*lang_start_internal*
 }
