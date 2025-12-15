@@ -2,6 +2,7 @@
 name = "mp3lame-encoder"
 version = "0.2.1"
 edition = "2021"
+rust-version = "1.63.0"
 repository = "https://github.com/DoumanAsh/mp3lame-encoder"
 description = "High level bindings to mp3lame encoder"
 keywords = ["lame", "mp3", "mp3lame", "libmp3lame", "codec"]
