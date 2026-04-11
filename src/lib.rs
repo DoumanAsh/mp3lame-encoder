@@ -388,6 +388,10 @@ impl Builder {
     ///Sets output sample rate.
     ///
     ///The default `None` allows LAME to pick the best value.
+    ///The supported values are:
+    /// - MPEG1: `32_000`, `44_100` and `48_000`
+    /// - MPEG2: `16_000`, `22_050` and `24_000`
+    /// - MPEG2.5: `8_000`, `11_025` and `12_000`
     ///
     ///Returns `Ok(())` the requested value is supported and was set successfully.
     pub fn set_output_sample_rate(&mut self, rate: Option<NonZeroU32>) -> Result<(), BuildError> {
@@ -404,6 +408,10 @@ impl Builder {
     ///Sets output sample rate using the builder pattern.
     ///
     ///The default `None` allows LAME to pick the best value.
+    ///The supported values are:
+    /// - MPEG1: `32_000`, `44_100` and `48_000`
+    /// - MPEG2: `16_000`, `22_050` and `24_000`
+    /// - MPEG2.5: `8_000`, `11_025` and `12_000`
     ///
     ///Returns `Ok(())` the requested value is supported and was set successfully.
     pub fn with_output_sample_rate(mut self, rate: Option<NonZeroU32>) -> Result<Self, BuildError> {
