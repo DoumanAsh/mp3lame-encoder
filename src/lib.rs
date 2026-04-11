@@ -22,7 +22,7 @@
 //!mp3_encoder.set_quality(mp3lame_encoder::Quality::Best).expect("set quality");
 //!mp3_encoder.set_id3_tag(id3tag);
 //!let mut mp3_encoder = mp3_encoder.build().expect("To initialize LAME encoder");
-//! 
+//!
 //!//Methods prefixed with `with_*` return Self for convenience
 //!let mut mp3_encoder = Builder::new().expect("Create LAME builder")
 //!    .with_num_channels(2).expect("set channels")
@@ -71,6 +71,7 @@ use core::mem::{self, MaybeUninit};
 use core::num::NonZeroU32;
 use core::ptr::{self, NonNull};
 use core::{cmp, fmt};
+use core::ffi::c_int;
 
 mod input;
 pub use input::*;
@@ -112,12 +113,12 @@ pub enum BuildError {
     ///Internal error
     InternalError,
     ///Other errors, most likely unexpected.
-    Other(libc::c_int),
+    Other(c_int),
 }
 
 impl BuildError {
     #[inline(always)]
-    fn from_c_int(code: libc::c_int) -> Result<(), Self> {
+    fn from_c_int(code: c_int) -> Result<(), Self> {
         if code >= 0 {
             return Ok(())
         }
@@ -168,12 +169,12 @@ pub enum EncodeError {
     ///Psycho acoustic problems, whatever it means.
     PsychoAcoustic,
     ///Other errors, most likely unexpected.
-    Other(libc::c_int),
+    Other(c_int),
 }
 
 impl EncodeError {
     #[inline(always)]
-    fn from_c_int(code: libc::c_int) -> Result<usize, Self> {
+    fn from_c_int(code: c_int) -> Result<usize, Self> {
         if code >= 0 {
             return Ok(code as usize)
         }
@@ -427,7 +428,7 @@ impl Builder {
     ///Returns whether it is supported or not.
     pub fn set_sample_rate(&mut self, rate: u32) -> Result<(), BuildError> {
         let res = unsafe {
-            ffi::lame_set_in_samplerate(self.ptr(), rate.try_into().unwrap_or(libc::c_int::MAX))
+            ffi::lame_set_in_samplerate(self.ptr(), rate.try_into().unwrap_or(c_int::MAX))
         };
 
         BuildError::from_c_int(res)
@@ -437,7 +438,7 @@ impl Builder {
     ///Sets input sample rate using the builder pattern.
     /// 
     ///Defaults to 44_100.
-    /// 
+    ///
     ///Returns an error if it is not supported.
     pub fn with_sample_rate(mut self, rate: u32) -> Result<Self, BuildError> {
         self.set_sample_rate(rate)?;
@@ -558,7 +559,7 @@ impl Builder {
 
     #[inline]
     ///Sets VBR quality using the builder pattern.
-    /// 
+    ///
     ///Returns an error if it is not supported.
     pub fn with_vbr_quality(mut self, quality: Quality) -> Result<Self, BuildError> {
         self.set_vbr_quality(quality)?;
@@ -606,9 +607,9 @@ impl Builder {
 
     #[inline]
     ///Sets VBR mode using the bulder pattern.
-    /// 
+    ///
     ///Default is off (i.e. CBR)
-    /// 
+    ///
     ///Returns an error if it is not supported.
     pub fn with_vbr_mode(mut self, value: VbrMode) -> Result<Self, BuildError> {
         self.set_vbr_mode(value)?;
@@ -686,7 +687,7 @@ impl Builder {
     ///Sets id3tag tag using the builder pattern.
     ///
     ///If [FlushGap](FlushGap) is used, then `v1` will not be added.
-    /// 
+    ///
     ///Returns an error if it is not supported.
     pub fn with_id3_tag(mut self, value: Id3Tag<'_>) -> Result<Self, Id3TagError> {
         self.set_id3_tag(value)?;

@@ -30,7 +30,7 @@ jobs:
     uses: DoumanAsh/douman-ci/.github/workflows/rust.yml@master
     with:
       runs-on: ${{ matrix.os }}
-      min-rustc-version: "1.63.0"
+      min-rustc-version: "1.64.0"
       valgrind_flags: "--suppressions=valgrind.supp"
 
   cross-compilation-test:
