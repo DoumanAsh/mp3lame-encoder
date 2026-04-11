@@ -1,6 +1,7 @@
 use super::{Encoder, ffi};
 
 use core::ptr;
+use core::ffi::{c_int, c_long};
 
 ///Type of PCM input for encoder
 ///
@@ -17,7 +18,7 @@ pub trait EncoderInput {
     ///## Returns
     ///
     ///Zero or positive integer to indicate success and number of bytes written.
-    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int;
+    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int;
 }
 
 ///PCM data with only 1 channel
@@ -27,7 +28,7 @@ pub struct MonoPcm<'a, T>(pub &'a [T]);
 
 impl EncoderInput for MonoPcm<'_, u16> {
     #[inline(always)]
-    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int {
+    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int {
         unsafe {
             ffi::lame_encode_buffer(encoder.ptr(), self.0.as_ptr() as _, ptr::null(), self.0.len() as _, output_buf as _, output_len as _)
         }
@@ -36,7 +37,7 @@ impl EncoderInput for MonoPcm<'_, u16> {
 
 impl EncoderInput for MonoPcm<'_, i16> {
     #[inline(always)]
-    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int {
+    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int {
         unsafe {
             ffi::lame_encode_buffer(encoder.ptr(), self.0.as_ptr(), ptr::null(), self.0.len() as _, output_buf as _, output_len as _)
         }
@@ -44,9 +45,9 @@ impl EncoderInput for MonoPcm<'_, i16> {
 }
 
 //On most platforms it should be i32
-impl EncoderInput for MonoPcm<'_, libc::c_int> {
+impl EncoderInput for MonoPcm<'_, c_int> {
     #[inline(always)]
-    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int {
+    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int {
         unsafe {
             ffi::lame_encode_buffer_int(encoder.ptr(), self.0.as_ptr(), ptr::null(), self.0.len() as _, output_buf as _, output_len as _)
         }
@@ -56,9 +57,9 @@ impl EncoderInput for MonoPcm<'_, libc::c_int> {
 #[cfg(all(unix, all(not(target_arch = "x86"), not(target_arch = "arm"))))]
 //On most unix it should be i64.
 //But unclear about other platforms, so it is only implemented there as otherwise it is i32.
-impl EncoderInput for MonoPcm<'_, libc::c_long> {
+impl EncoderInput for MonoPcm<'_, c_long> {
     #[inline(always)]
-    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int {
+    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int {
         unsafe {
             ffi::lame_encode_buffer_long2(encoder.ptr(), self.0.as_ptr(), ptr::null(), self.0.len() as _, output_buf as _, output_len as _)
         }
@@ -67,7 +68,7 @@ impl EncoderInput for MonoPcm<'_, libc::c_long> {
 
 impl EncoderInput for MonoPcm<'_, f32> {
     #[inline(always)]
-    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int {
+    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int {
         unsafe {
             ffi::lame_encode_buffer_ieee_float(encoder.ptr(), self.0.as_ptr(), ptr::null(), self.0.len() as _, output_buf as _, output_len as _)
         }
@@ -76,7 +77,7 @@ impl EncoderInput for MonoPcm<'_, f32> {
 
 impl EncoderInput for MonoPcm<'_, f64> {
     #[inline(always)]
-    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int {
+    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int {
         unsafe {
             ffi::lame_encode_buffer_ieee_double(encoder.ptr(), self.0.as_ptr(), ptr::null(), self.0.len() as _, output_buf as _, output_len as _)
         }
@@ -99,7 +100,7 @@ pub struct DualPcm<'a, T> {
 
 impl EncoderInput for DualPcm<'_, i16> {
     #[inline(always)]
-    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int {
+    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int {
         debug_assert_eq!(self.left.len(), self.right.len());
         let samples_num = core::cmp::min(self.left.len(), self.right.len());
         unsafe {
@@ -110,7 +111,7 @@ impl EncoderInput for DualPcm<'_, i16> {
 
 impl EncoderInput for DualPcm<'_, u16> {
     #[inline(always)]
-    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int {
+    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int {
         debug_assert_eq!(self.left.len(), self.right.len());
         let samples_num = core::cmp::min(self.left.len(), self.right.len());
         unsafe {
@@ -119,9 +120,9 @@ impl EncoderInput for DualPcm<'_, u16> {
     }
 }
 
-impl EncoderInput for DualPcm<'_, libc::c_int> {
+impl EncoderInput for DualPcm<'_, c_int> {
     #[inline(always)]
-    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int {
+    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int {
         debug_assert_eq!(self.left.len(), self.right.len());
         let samples_num = core::cmp::min(self.left.len(), self.right.len());
         unsafe {
@@ -132,7 +133,7 @@ impl EncoderInput for DualPcm<'_, libc::c_int> {
 
 impl EncoderInput for DualPcm<'_, f32> {
     #[inline(always)]
-    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int {
+    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int {
         debug_assert_eq!(self.left.len(), self.right.len());
         let samples_num = core::cmp::min(self.left.len(), self.right.len());
         unsafe {
@@ -143,7 +144,7 @@ impl EncoderInput for DualPcm<'_, f32> {
 
 impl EncoderInput for DualPcm<'_, f64> {
     #[inline(always)]
-    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int {
+    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int {
         debug_assert_eq!(self.left.len(), self.right.len());
         let samples_num = core::cmp::min(self.left.len(), self.right.len());
         unsafe {
@@ -162,7 +163,7 @@ pub struct InterleavedPcm<'a, T>(pub &'a [T]);
 
 impl EncoderInput for InterleavedPcm<'_, i16> {
     #[inline(always)]
-    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int {
+    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int {
         let samples_num = self.0.len() / 2;
         debug_assert_eq!(self.0.len() % 2, 0);
         //lame_encode_buffer_interleaved() signature takes mutable pointer, but all other functions const*, wtf?
@@ -174,7 +175,7 @@ impl EncoderInput for InterleavedPcm<'_, i16> {
 
 impl EncoderInput for InterleavedPcm<'_, u16> {
     #[inline(always)]
-    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int {
+    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int {
         let samples_num = self.0.len() / 2;
         debug_assert_eq!(self.0.len() % 2, 0);
         //lame_encode_buffer_interleaved() signature takes mutable pointer, but all other functions const*, wtf?
@@ -184,9 +185,9 @@ impl EncoderInput for InterleavedPcm<'_, u16> {
     }
 }
 
-impl EncoderInput for InterleavedPcm<'_, libc::c_int> {
+impl EncoderInput for InterleavedPcm<'_, c_int> {
     #[inline(always)]
-    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int {
+    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int {
         let samples_num = self.0.len() / 2;
         debug_assert_eq!(self.0.len() % 2, 0);
         unsafe {
@@ -197,7 +198,7 @@ impl EncoderInput for InterleavedPcm<'_, libc::c_int> {
 
 impl EncoderInput for InterleavedPcm<'_, f32> {
     #[inline(always)]
-    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int {
+    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int {
         let samples_num = self.0.len() / 2;
         debug_assert_eq!(self.0.len() % 2, 0);
         unsafe {
@@ -208,7 +209,7 @@ impl EncoderInput for InterleavedPcm<'_, f32> {
 
 impl EncoderInput for InterleavedPcm<'_, f64> {
     #[inline(always)]
-    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int {
+    fn encode(self, encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int {
         let samples_num = self.0.len() / 2;
         debug_assert_eq!(self.0.len() % 2, 0);
         unsafe {
@@ -229,7 +230,7 @@ pub trait EncoderFlush {
     ///## Returns
     ///
     ///Zero or positive integer to indicate success and number of bytes written.
-    fn flush(encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int;
+    fn flush(encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int;
 }
 
 ///Performs flush, padding gaps with 0
@@ -238,7 +239,7 @@ pub struct FlushGap;
 impl EncoderFlush for FlushGap {
     #[allow(clippy::not_unsafe_ptr_arg_deref)]
     #[inline(always)]
-    fn flush(encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int {
+    fn flush(encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int {
         unsafe {
             ffi::lame_encode_flush(encoder.ptr(), output_buf, output_len as _)
         }
@@ -251,7 +252,7 @@ pub struct FlushNoGap;
 impl EncoderFlush for FlushNoGap {
     #[allow(clippy::not_unsafe_ptr_arg_deref)]
     #[inline(always)]
-    fn flush(encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> libc::c_int {
+    fn flush(encoder: &mut Encoder, output_buf: *mut u8, output_len: usize) -> c_int {
         unsafe {
             ffi::lame_encode_flush_nogap(encoder.ptr(), output_buf, output_len as _)
         }

@@ -2,7 +2,7 @@
 name = "mp3lame-encoder"
 version = "0.2.2"
 edition = "2021"
-rust-version = "1.63.0"
+rust-version = "1.64.0"
 repository = "https://github.com/DoumanAsh/mp3lame-encoder"
 description = "High level bindings to mp3lame encoder"
 keywords = ["lame", "mp3", "mp3lame", "libmp3lame", "codec"]
@@ -20,10 +20,6 @@ std = []
 
 [dependencies.mp3lame-sys]
 version = "0.1.4"
-default-features = false
-
-[dependencies.libc]
-version = "0.2"
 default-features = false
 
 [dev-dependencies.symphonia]
