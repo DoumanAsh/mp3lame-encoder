@@ -389,7 +389,7 @@ impl Builder {
     ///
     ///The default `None` allows LAME to pick the best value.
     ///
-    ///Returns whether the requested value is supported.
+    ///Returns `Ok(())` the requested value is supported and was set successfully.
     pub fn set_output_sample_rate(&mut self, rate: Option<NonZeroU32>) -> Result<(), BuildError> {
         let rate = rate.map_or(0, NonZeroU32::get).try_into().unwrap_or(libc::c_int::MAX);
 
@@ -405,7 +405,7 @@ impl Builder {
     ///
     ///The default `None` allows LAME to pick the best value.
     ///
-    ///Returns whether the requested value is supported.
+    ///Returns `Ok(())` the requested value is supported and was set successfully.
     pub fn with_output_sample_rate(mut self, rate: Option<NonZeroU32>) -> Result<Self, BuildError> {
         self.set_output_sample_rate(rate)?;
         Ok(self)
