@@ -396,7 +396,7 @@ impl Builder {
     ///
     ///Returns `Ok(())` the requested value is supported and was set successfully.
     pub fn set_output_sample_rate(&mut self, rate: Option<NonZeroU32>) -> Result<(), BuildError> {
-        let rate = rate.map_or(0, NonZeroU32::get).try_into().unwrap_or(libc::c_int::MAX);
+        let rate = rate.map_or(0, NonZeroU32::get).try_into().unwrap_or(c_int::MAX);
 
         let res = unsafe {
              ffi::lame_set_out_samplerate(self.ptr(), rate)
@@ -436,7 +436,7 @@ impl Builder {
 
     #[inline]
     ///Sets input sample rate using the builder pattern.
-    /// 
+    ///
     ///Defaults to 44_100.
     ///
     ///Returns an error if it is not supported.
