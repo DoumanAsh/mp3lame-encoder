@@ -68,6 +68,7 @@ pub use mp3lame_sys as ffi;
 
 use alloc::vec::Vec;
 use core::mem::{self, MaybeUninit};
+use core::num::NonZeroU32;
 use core::ptr::{self, NonNull};
 use core::{cmp, fmt};
 
@@ -384,7 +385,34 @@ impl Builder {
     }
 
     #[inline]
-    ///Sets sample rate.
+    ///Sets output sample rate.
+    ///
+    ///The default `None` allows LAME to pick the best value.
+    ///
+    ///Returns whether the requested value is supported.
+    pub fn set_output_sample_rate(&mut self, rate: Option<NonZeroU32>) -> Result<(), BuildError> {
+        let rate = rate.map_or(0, NonZeroU32::get).try_into().unwrap_or(libc::c_int::MAX);
+
+        let res = unsafe {
+             ffi::lame_set_out_samplerate(self.ptr(), rate)
+        };
+
+        BuildError::from_c_int(res)
+    }
+
+    #[inline]
+    ///Sets output sample rate using the builder pattern.
+    ///
+    ///The default `None` allows LAME to pick the best value.
+    ///
+    ///Returns whether the requested value is supported.
+    pub fn with_output_sample_rate(mut self, rate: Option<NonZeroU32>) -> Result<Self, BuildError> {
+        self.set_output_sample_rate(rate)?;
+        Ok(self)
+    }
+
+    #[inline]
+    ///Sets input sample rate.
     ///
     ///Defaults to 44_100.
     ///
@@ -398,7 +426,7 @@ impl Builder {
     }
 
     #[inline]
-    ///Sets sample rate using the builder pattern.
+    ///Sets input sample rate using the builder pattern.
     /// 
     ///Defaults to 44_100.
     /// 
