@@ -68,7 +68,7 @@ pub use mp3lame_sys as ffi;
 
 use alloc::vec::Vec;
 use core::mem::{self, MaybeUninit};
-use core::num::NonZeroU32;
+use core::num::{NonZeroU32, NonZeroUsize};
 use core::ptr::{self, NonNull};
 use core::{cmp, fmt};
 use core::ffi::c_int;
@@ -157,7 +157,7 @@ impl fmt::Display for BuildError {
 pub enum EncodeError {
     ///Indicates output buffer is insufficient.
     ///
-    ///Consider using [max_required_buffer_size](max_required_buffer_size) to determine required
+    ///Consider using [max_required_buffer_size] to determine required
     ///space to alloc.
     BufferTooSmall,
     ///Failed to allocate memory
@@ -619,7 +619,7 @@ impl Builder {
     #[inline]
     ///Sets id3tag tag.
     ///
-    ///If [FlushGap](FlushGap) is used, then `v1` will not be added.
+    ///If [FlushGap] is used, then `v1` will not be added.
     ///But `v2` is always added at the beginning.
     ///
     ///Returns whether it is supported or not.
@@ -686,7 +686,7 @@ impl Builder {
     #[inline]
     ///Sets id3tag tag using the builder pattern.
     ///
-    ///If [FlushGap](FlushGap) is used, then `v1` will not be added.
+    ///If [FlushGap] is used, then `v1` will not be added.
     ///
     ///Returns an error if it is not supported.
     pub fn with_id3_tag(mut self, value: Id3Tag<'_>) -> Result<Self, Id3TagError> {
@@ -751,11 +751,73 @@ impl Encoder {
     }
 
     #[inline]
+    ///Returns indication whether encoder is configured to write LAME tag
+    pub fn is_lame_tag_written(&self) -> bool {
+        unsafe {
+            ffi::lame_get_bWriteVbrTag(self.ptr()) != 0
+        }
+    }
+
+    #[inline]
+    ///Returns size of ths [Id3Tag] written, if any
+    pub fn id3v2_tag_size(&self) -> usize {
+        unsafe {
+            ffi::lame_get_id3v2_tag(self.ptr(), ptr::null_mut(), 0)
+        }
+    }
+
+    #[inline]
+    ///Retrieves size of the lame tag
+    pub fn lame_tag_size(&self) -> usize {
+        unsafe {
+            ffi::lame_get_lametag_frame(self.ptr(), ptr::null_mut(), 0)
+        }
+    }
+
+    #[inline]
+    ///Attempts to write lame tag into `output` returning number of written bytes in case of success
+    ///
+    ///Note that if you write [Id3Tag] you must not write this tag at the start.
+    ///Instead you must insert Lame Tag after [Id3Tag] position.
+    ///
+    ///To determine where [Id3Tag] ends in output stream, you can use [Encoder::id3v2_tag_size]
+    ///which returns full size of [Id3Tag] metadata written (therefore indicating where actual mp3
+    ///content is starting)
+    pub fn lame_tag_encode(&self, output: &mut [MaybeUninit<u8>]) -> Option<NonZeroUsize> {
+        //lame_get_lametag_frame() returns full required size in case `output` is not sufficient,
+        //so first manually check buffer size
+        if output.len() < self.lame_tag_size() {
+            None
+        } else {
+            NonZeroUsize::new(unsafe {
+                ffi::lame_get_lametag_frame(self.ptr(), output.as_mut_ptr() as _, 0)
+            })
+        }
+    }
+
+    #[inline]
+    ///Attempts to write lame tag into `output` returning number of written bytes in case of success
+    ///
+    ///Refer to [Encoder::lame_tag_encode] for details
+    pub fn lame_tag_encode_to_vec(&self, output: &mut Vec<u8>) -> Option<NonZeroUsize> {
+        let original_len = output.len();
+        match self.lame_tag_encode(output.spare_capacity_mut()) {
+            Some(written) => {
+                unsafe {
+                    output.set_len(original_len.saturating_add(written.get()));
+                }
+                Some(written)
+            },
+            None => None
+        }
+    }
+
+    #[inline]
     ///Attempts to encode PCM data, writing whatever available onto `output` buffer
     ///
     ///### Arguments:
     ///
-    /// - `input` - Data input. Can be [MonoPcm](MonoPcm), [DualPcm](DualPcm) or [InterleavedPcm](InterleavedPcm)
+    /// - `input` - Data input. Can be [MonoPcm], [DualPcm] or [InterleavedPcm]
     /// - `output` - Output buffer to write into.
     ///
     ///### Result:
@@ -795,8 +857,8 @@ impl Encoder {
     ///
     ///### Type:
     ///
-    ///- [FlushNoGap](FlushNoGap) - performs flush, using ancillary data to fill gaps;
-    ///- [FlushGap](FlushGap) - performs flush, padding with 0;
+    ///- [FlushNoGap] - performs flush, using ancillary data to fill gaps;
+    ///- [FlushGap] - performs flush, padding with 0;
     ///
     ///### Arguments:
     ///
