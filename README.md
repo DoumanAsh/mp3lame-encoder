@@ -44,6 +44,30 @@ unsafe {
 }
 //At this point your mp3_out_buffer should have full MP3 data, ready to be written on file system or whatever
 
+if mp3_encoder.lame_tag_size() > 0 {
+   let id3v2_tag_boundary = mp3_encoder.id3v2_tag_size();
+   assert_eq!(id3v2_tag_boundary, 158);
+   let mut lame_tag = [core::mem::MaybeUninit::uninit(); 1024];
+   assert!(lame_tag.len() >= mp3_encoder.lame_tag_size(), "Increase buffer size");
+   let lame_tag_size = mp3_encoder.lame_tag_encode(&mut lame_tag).expect("to write lame tag");
+   assert_eq!(mp3_encoder.lame_tag_size(), lame_tag_size.get());
+
+   //If you need VBR tag then you need to write mp3 file in following order
+   //- id3v2 tag
+   //- VBR tag
+   //- actual mp3 content
+   let chunks_to_write = [
+       &mp3_out_buffer[..id3v2_tag_boundary],
+       unsafe {
+           core::slice::from_raw_parts(lame_tag.as_ptr() as *const u8, lame_tag_size.get())
+       },
+       &mp3_out_buffer[id3v2_tag_boundary..],
+   ];
+} else {
+   let chunks_to_write = [
+       &mp3_out_buffer[..]
+   ];
+}
 ```
 
 ## License

@@ -53,3 +53,32 @@
    fun:*rt*lang_start*
    fun:*rt*lang_start_internal*
 }
+{
+   symphonia_bad_static4
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:alloc
+   ...
+   fun:reserve_rehash_inner*
+   ...
+   fun:*hashbrown*find_or_find_insert_index*
+   ...
+   fun:find_or_find_insert_index*
+   ...
+}
+{
+   rust_compiler_leak_test
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   ...
+   fun:current_or_unnamed
+   ...
+   fun:__rust_std_internal_init_fn
+   ...
+   fun:run_tests*
+   ...
+   fun:test_main_with_exit_callback*
+   ...
+}
