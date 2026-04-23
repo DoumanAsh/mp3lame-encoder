@@ -14,28 +14,22 @@
 //!    comment: b"Just my comment",
 //!};
 //!
-//!//Create codec using builder
-//!let mut mp3_encoder = Builder::new().expect("Create LAME builder");
-//!mp3_encoder.set_num_channels(2).expect("set channels");
-//!mp3_encoder.set_sample_rate(44_100).expect("set sample rate");
-//!mp3_encoder.set_brate(mp3lame_encoder::Bitrate::Kbps192).expect("set brate");
-//!mp3_encoder.set_quality(mp3lame_encoder::Quality::Best).expect("set quality");
-//!mp3_encoder.set_id3_tag(id3tag);
-//!let mut mp3_encoder = mp3_encoder.build().expect("To initialize LAME encoder");
-//!
 //!//Methods prefixed with `with_*` return Self for convenience
 //!let mut mp3_encoder = Builder::new().expect("Create LAME builder")
 //!    .with_num_channels(2).expect("set channels")
 //!    .with_sample_rate(44_100).expect("set sample rate")
 //!    .with_brate(mp3lame_encoder::Bitrate::Kbps192).expect("set brate")
 //!    .with_quality(mp3lame_encoder::Quality::Best).expect("set quality")
+//!    .with_vbr_mode(mp3lame_encoder::VbrMode::Mtrh).expect("set VBR")
+//!    .with_vbr_quality(mp3lame_encoder::Quality::Best).expect("set VBR quality")
+//!    .with_to_write_vbr_tag(true).expect("set to write VBR tag")
 //!    .with_id3_tag(id3tag).expect("set tags")
 //!    .build().expect("To initialize LAME encoder");
 //!
 //!//use actual PCM data
 //!let input = DualPcm {
-//!    left: &[0u16, 0],
-//!    right: &[0u16, 0],
+//!    left: &[0u16, 1024],
+//!    right: &[0u16, 1024],
 //!};
 //!
 //!let mut mp3_out_buffer = Vec::new();
@@ -51,6 +45,30 @@
 //!}
 //!//At this point your mp3_out_buffer should have full MP3 data, ready to be written on file system or whatever
 //!
+//!if mp3_encoder.lame_tag_size() > 0 {
+//!   let id3v2_tag_boundary = mp3_encoder.id3v2_tag_size();
+//!   assert_eq!(id3v2_tag_boundary, 158);
+//!   let mut lame_tag = [core::mem::MaybeUninit::uninit(); 1024];
+//!   assert!(lame_tag.len() >= mp3_encoder.lame_tag_size(), "Increase buffer size");
+//!   let lame_tag_size = mp3_encoder.lame_tag_encode(&mut lame_tag).expect("to write lame tag");
+//!   assert_eq!(mp3_encoder.lame_tag_size(), lame_tag_size.get());
+//!
+//!   //If you need VBR tag then you need to write mp3 file in following order
+//!   //- id3v2 tag
+//!   //- VBR tag
+//!   //- actual mp3 content
+//!   let chunks_to_write = [
+//!       &mp3_out_buffer[..id3v2_tag_boundary],
+//!       unsafe {
+//!           core::slice::from_raw_parts(lame_tag.as_ptr() as *const u8, lame_tag_size.get())
+//!       },
+//!       &mp3_out_buffer[id3v2_tag_boundary..],
+//!   ];
+//!} else {
+//!   let chunks_to_write = [
+//!       &mp3_out_buffer[..]
+//!   ];
+//!}
 //!```
 
 #![no_std]
@@ -790,7 +808,7 @@ impl Encoder {
             None
         } else {
             NonZeroUsize::new(unsafe {
-                ffi::lame_get_lametag_frame(self.ptr(), output.as_mut_ptr() as _, 0)
+                ffi::lame_get_lametag_frame(self.ptr(), output.as_mut_ptr() as _, output.len())
             })
         }
     }

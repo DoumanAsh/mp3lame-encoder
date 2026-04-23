@@ -55,6 +55,7 @@ fn should_decode_and_encode() {
         .with_quality(mp3lame_encoder::Quality::Best).expect("set quality")
         .with_vbr_mode(mp3lame_encoder::VbrMode::Mtrh).expect("set VBR")
         .with_vbr_quality(mp3lame_encoder::Quality::Best).expect("set VBR quality")
+        .with_to_write_vbr_tag(true).expect("set to write VBR tag")
         .with_id3_tag(Id3Tag {
             title: b"Bell",
             artist: &[],
@@ -64,7 +65,6 @@ fn should_decode_and_encode() {
             comment: b"Just some test shit",
         }).expect("Id3 tag")
         .build().expect("To initialize LAME encoder");
-
 
     mp3_out_buffer.reserve(MAX_ALBUM_ART_SIZE);
 
