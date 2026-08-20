@@ -82,3 +82,37 @@
    fun:test_main_with_exit_callback*
    ...
 }
+{
+   symphonia_again
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:alloc
+   ...
+   fun:*symphonia_core*codecs*CodecRegistry*register
+   fun:*symphonia_core*codecs*CodecRegistry*register_all*symphonia_codec_vorbis*
+}
+{
+   lazy_static
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:alloc
+   ...
+   fun:__static_ref_initialize
+   ...
+   fun:*lazy_static*lazy*
+}
+{
+   rust_rt_again
+   Memcheck:Leak
+   match-leak-kinds: possible
+   fun:malloc
+   fun:alloc
+   ...
+   fun:test_main_inner**
+   ...
+   fun:*core*ops*function*FnOnceu*call_once*
+   ...
+   fun:*std*rt*lang_start*
+}

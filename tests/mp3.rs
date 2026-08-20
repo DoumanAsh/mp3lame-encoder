@@ -5,9 +5,14 @@ use symphonia::core::io::MediaSourceStream;
 use symphonia::core::probe::Hint;
 use symphonia::core::errors::Error as SymError;
 
-use mp3lame_encoder::{Builder, MonoPcm, FlushNoGap, Id3Tag, MAX_ALBUM_ART_SIZE};
+use mp3lame_encoder::{mp3lame_version, Builder, MonoPcm, FlushNoGap, Id3Tag, MAX_ALBUM_ART_SIZE};
 
 static ALBUM_ART: &[u8] = include_bytes!("album_art.jpg");
+
+#[test]
+fn should_check_version() {
+    assert_eq!("3.100", mp3lame_version());
+}
 
 #[test]
 fn should_decode_and_encode() {

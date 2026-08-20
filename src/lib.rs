@@ -939,3 +939,11 @@ pub fn encoder() -> Result<Encoder, BuildError> {
         None => Err(BuildError::NoMem)
     }
 }
+
+///Retrieves underlying C library version
+pub fn mp3lame_version() -> alloc::borrow::Cow<'static, str> {
+    let version = unsafe {
+        core::ffi::CStr::from_ptr(mp3lame_sys::get_lame_version())
+    };
+    version.to_string_lossy()
+}
