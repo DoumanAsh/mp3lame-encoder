@@ -73,4 +73,4 @@ if mp3_encoder.lame_tag_size() > 0 {
 ## License
 
 LAME library is under LGPL License.
-Hence this crate is licensed under the same shitty license
+Hence this crate is licensed under the same license

@@ -11,7 +11,7 @@ static ALBUM_ART: &[u8] = include_bytes!("album_art.jpg");
 
 #[test]
 fn should_check_version() {
-    assert_eq!("3.100", mp3lame_version());
+    assert_eq!("4.0", mp3lame_version());
 }
 
 #[test]
@@ -145,7 +145,7 @@ fn should_decode_and_encode() {
     assert_eq!(mp3_encoder.lame_tag_encode_to_vec(&mut lame_tag).map(|len| len.get()), Some(417));
 
     let _ = mp3_encoder.flush_to_vec::<FlushNoGap>(&mut mp3_out_buffer).expect("to flush");
-    assert_eq!(mp3_encoder.id3v2_tag_size(), 94507);
+    assert_eq!(mp3_encoder.id3v2_tag_size(), 94514);
 
     let mut output_file = fs::File::create(NEW_FILE).expect("create file");
     //Write Id3Tag first (if any)
